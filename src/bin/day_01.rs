@@ -6,18 +6,28 @@ fn main() {
 
 fn get_number(input: &str) -> i32 {
     let first = input.chars().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
-    let last = input.chars().rev().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
-    return first*10+last;
+    let last = input
+        .chars()
+        .rev()
+        .filter_map(|c| c.to_digit(10))
+        .next()
+        .unwrap() as i32;
+    first * 10 + last
 }
 
 fn get_number2(input: &str) -> i32 {
-    let nums = input.char_indices().filter_map(|(i,_)| get_num(input.get(i..)?)).collect::<Vec<i32>>();
+    let nums = input
+        .char_indices()
+        .filter_map(|(i, _)| get_num(input.get(i..)?))
+        .collect::<Vec<i32>>();
     let first = nums[0];
-    let last = nums[nums.len()-1];
-    return first*10+last;
-}   
+    let last = nums[nums.len() - 1];
+    first * 10 + last
+}
 
-static NUMS: [&str; 10] = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+static NUMS: [&str; 10] = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+];
 
 fn get_first_digit(input: &str) -> Option<u32> {
     input.chars().take(1).next()?.to_digit(10)
@@ -25,24 +35,26 @@ fn get_first_digit(input: &str) -> Option<u32> {
 
 fn get_num(input: &str) -> Option<i32> {
     if let Some(n) = get_first_digit(input) {
-        return Some(n as i32)
+        return Some(n as i32);
     };
-    NUMS.iter().enumerate().filter_map(|(i, &n)| {
-        let s = input.get(0..n.len())?;
-        if s == n {
-            Some(i as i32)
-        } else {
-            None
-        }
-    }).next()
+    NUMS.iter()
+        .enumerate()
+        .filter_map(|(i, &n)| {
+            let s = input.get(0..n.len())?;
+            if s == n {
+                Some(i as i32)
+            } else {
+                None
+            }
+        })
+        .next()
 }
 
-
-fn get_sum(input: &Vec<&str>) -> i32 {
+fn get_sum(input: &[&str]) -> i32 {
     input.iter().map(|s| get_number(s)).sum()
 }
 
-fn get_sum2(input: &Vec<&str>) -> i32 {
+fn get_sum2(input: &[&str]) -> i32 {
     input.iter().map(|s| get_number2(s)).sum()
 }
 
@@ -62,7 +74,7 @@ fn test_get_number() {
 
 #[test]
 fn test_get_sum() {
-    let input ="1abc2
+    let input = "1abc2
     pqr3stu8vwx
     a1b2c3d4e5f
     treb7uchet";
