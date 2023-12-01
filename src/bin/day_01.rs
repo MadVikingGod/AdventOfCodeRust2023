@@ -5,14 +5,11 @@ fn main() {
 }
 
 fn get_number(line: &str) -> i32 {
-    let first = line.chars().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
-    let last = line
-        .chars()
-        .rev()
+    let nums = line.chars()
         .filter_map(|c| c.to_digit(10))
-        .next()
-        .unwrap() as i32;
-    first * 10 + last
+        .map(|n| n as i32)
+        .collect::<Vec<i32>>();
+    nums[0]*10 + nums.last().unwrap()
 }
 
 fn get_number2(line: &str) -> i32 {
