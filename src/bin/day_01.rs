@@ -4,9 +4,9 @@ fn main() {
     println!("Part 2: {}", get_sum2(&input));
 }
 
-fn get_number(input: &str) -> i32 {
-    let first = input.chars().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
-    let last = input
+fn get_number(line: &str) -> i32 {
+    let first = line.chars().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
+    let last = line
         .chars()
         .rev()
         .filter_map(|c| c.to_digit(10))
@@ -15,10 +15,9 @@ fn get_number(input: &str) -> i32 {
     first * 10 + last
 }
 
-fn get_number2(input: &str) -> i32 {
-    let nums = input
-        .char_indices()
-        .filter_map(|(i, _)| get_num(input.get(i..)?))
+fn get_number2(line: &str) -> i32 {
+    let nums = (0..line.len())
+        .filter_map(|i| starts_with_number(line.get(i..)?))
         .collect::<Vec<i32>>();
     let first = nums[0];
     let last = nums[nums.len() - 1];
@@ -33,7 +32,7 @@ fn get_first_digit(input: &str) -> Option<u32> {
     input.chars().take(1).next()?.to_digit(10)
 }
 
-fn get_num(input: &str) -> Option<i32> {
+fn starts_with_number(input: &str) -> Option<i32> {
     if let Some(n) = get_first_digit(input) {
         return Some(n as i32);
     };
