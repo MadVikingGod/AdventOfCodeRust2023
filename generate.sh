@@ -10,13 +10,13 @@ touch ${bin} ${input}
 if [ ! -s ${bin} ]; then
     cat >$bin <<EOF
 fn main() {
-    let input = include_str!("${input}");
+    let input = include_str!("input/day_${day}.txt");
     println!("Hello, world!");
 }
 
 #[cfg(test)]
 #[test]
-fn test_nothing() {
+fn test_nothing_day${day}() {
     ()
 }
 EOF
