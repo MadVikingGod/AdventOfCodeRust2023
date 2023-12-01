@@ -5,56 +5,38 @@ fn main() {
 }
 
 fn get_number(input: &str) -> i32 {
-    let first = input.chars().filter(|c| c.is_numeric() ).take(1).map(|c| c.to_digit(10).unwrap() as i32).collect::<Vec<i32>>()[0];
-    let last = input.chars().rev().filter(|c| c.is_numeric() ).take(1).map(|c| c.to_digit(10).unwrap() as i32).collect::<Vec<i32>>()[0];
+    let first = input.chars().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
+    let last = input.chars().rev().filter_map(|c| c.to_digit(10)).next().unwrap() as i32;
     return first*10+last;
 }
 
 fn get_number2(input: &str) -> i32 {
-    let nums = input.char_indices().filter_map(|(i, _)| get_num(input, i)).collect::<Vec<i32>>();
+    let nums = input.char_indices().filter_map(|(i,_)| get_num(input.get(i..)?)).collect::<Vec<i32>>();
     let first = nums[0];
     let last = nums[nums.len()-1];
     return first*10+last;
+}   
+
+static NUMS: [&str; 10] = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+
+fn get_first_digit(input: &str) -> Option<u32> {
+    input.chars().take(1).next()?.to_digit(10)
 }
 
-fn get_num(input: &str, index: usize) -> Option<i32> {
-    if let Some(c) = input.get(index..index+1) {
-        if let Ok(n) = c.parse() {
-            return Some(n);
-        }
+fn get_num(input: &str) -> Option<i32> {
+    if let Some(n) = get_first_digit(input) {
+        return Some(n as i32)
     };
-    // one, two, six
-    if let Some(s) = input.get(index..index+3) {
-        if s == "one" {
-            return Some(1);
-        } else if s == "two" {
-            return Some(2);
-        } else if s == "six" {
-            return Some(6);
+    NUMS.iter().enumerate().filter_map(|(i, &n)| {
+        let s = input.get(0..n.len())?;
+        if s == n {
+            Some(i as i32)
+        } else {
+            None
         }
-    };
-    // four, five, nine
-    if let Some(s) = input.get(index..index+4) {
-        if s == "four" {
-            return Some(4);
-        } else if s == "five" {
-            return Some(5);
-        } else if s == "nine" {
-            return Some(9);
-        }
-    };
-    // three, seven, eight
-    if let Some(s) = input.get(index..index+5) {
-        if s == "three" {
-            return Some(3);
-        } else if s == "seven" {
-            return Some(7);
-        } else if s == "eight" {
-            return Some(8);
-        }
-    };
-    None
+    }).next()
 }
+
 
 fn get_sum(input: &Vec<&str>) -> i32 {
     input.iter().map(|s| get_number(s)).sum()
@@ -84,11 +66,12 @@ fn test_get_sum() {
     pqr3stu8vwx
     a1b2c3d4e5f
     treb7uchet";
-    assert_eq!(get_sum(input.lines().collect()), 142);
+    let lines = input.lines().collect::<Vec<&str>>();
+    assert_eq!(get_sum(&lines), 142);
 }
 
 #[test]
-fn test_get_number2() {
+fn test_get_number3() {
     let tests = vec![
         ("two1nine", 29),
         ("eightwothree", 83),
