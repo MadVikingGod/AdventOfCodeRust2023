@@ -7,13 +7,13 @@ use aoc::Point;
 fn main() {
     let _input = include_str!("input/day_03.txt");
 
-    let lines = _input.split("\n").collect::<Vec<&str>>();
+    let lines = _input.split('\n').collect::<Vec<&str>>();
 
     println!("Result: {}", part1(&lines));
     println!("Result: {}", part2(&lines));
 }
 
-fn part1(lines: &Vec<&str>) -> i32 {
+fn part1(lines: &[&str]) -> i32 {
     let re = Regex::new(r"\d+").unwrap();
     let lines = [""]
         .iter()
@@ -41,7 +41,7 @@ fn part1(lines: &Vec<&str>) -> i32 {
     })
 }
 
-fn part2(lines: &Vec<&str>) -> i32 {
+fn part2(lines: &[&str]) -> i32 {
     let re = Regex::new(r"\d+").unwrap();
     let mut found: HashMap<Point, i32> = HashMap::new();
     let lines = [""]
@@ -60,7 +60,7 @@ fn part2(lines: &Vec<&str>) -> i32 {
                 let start = if m.start() == 0 { 0 } else { m.start() - 1 };
                 let end = m.end() + 1;
                 if let Some(x) = find_star(line, start, end) {
-                    let point = Point { x: x, y: i };
+                    let point = Point { x, y: i };
                     if let Some(v) = found.get(&point) {
                         return Some(*v * val);
                     }
@@ -68,7 +68,7 @@ fn part2(lines: &Vec<&str>) -> i32 {
                     return None;
                 };
                 if let Some(x) = find_star(before, start, end) {
-                    let point = Point { x: x, y: i - 1 };
+                    let point = Point { x, y: i - 1 };
                     if let Some(v) = found.get(&point) {
                         return Some(*v * val);
                     }
@@ -76,7 +76,7 @@ fn part2(lines: &Vec<&str>) -> i32 {
                     return None;
                 }
                 if let Some(x) = find_star(after, start, end) {
-                    let point = Point { x: x, y: i + 1 };
+                    let point = Point { x, y: i + 1 };
                     if let Some(v) = found.get(&point) {
                         return Some(*v * val);
                     }
@@ -128,20 +128,20 @@ static TEST_INPUT: &str = "467..114..
 #[test]
 fn test_find_symbol() {
     let line = "...*......";
-    assert_eq!(find_symbol(line, 0, 3), false);
-    assert_eq!(find_symbol(line, 0, 4), true);
-    assert_eq!(find_symbol(line, 3, 4), true);
-    assert_eq!(find_symbol(line, 3, 5), true);
-    assert_eq!(find_symbol(line, 5, 12), false);
+    assert!(!find_symbol(line, 0, 3));
+    assert!(find_symbol(line, 0, 4));
+    assert!(find_symbol(line, 3, 4));
+    assert!(find_symbol(line, 3, 5));
+    assert!(!find_symbol(line, 5, 12));
 
     let line = ".........#";
-    assert_eq!(find_symbol(line, 0, 3), false);
-    assert_eq!(find_symbol(line, 5, 12), true);
-    assert_eq!(find_symbol(line, 5, 10), true);
+    assert!(!find_symbol(line, 0, 3));
+    assert!(find_symbol(line, 5, 12));
+    assert!(find_symbol(line, 5, 10));
 }
 
 #[test]
 fn test_part1() {
-    let lines = TEST_INPUT.split("\n").collect::<Vec<&str>>();
+    let lines = TEST_INPUT.split('\n').collect::<Vec<&str>>();
     assert_eq!(part1(&lines), 4361);
 }
