@@ -56,32 +56,19 @@ fn part2(lines: &[&str]) -> i32 {
         acc + numbers
             .iter()
             .filter_map(|m| {
+                let i = i + 1;
                 let val = m.as_str().parse::<i32>().unwrap();
                 let start = if m.start() == 0 { 0 } else { m.start() - 1 };
                 let end = m.end() + 1;
-                if let Some(x) = find_star(line, start, end) {
-                    let point = Point { x, y: i };
-                    if let Some(v) = found.get(&point) {
-                        return Some(*v * val);
-                    }
-                    found.insert(point, val);
-                    return None;
-                };
-                if let Some(x) = find_star(before, start, end) {
-                    let point = Point { x, y: i - 1 };
-                    if let Some(v) = found.get(&point) {
-                        return Some(*v * val);
-                    }
-                    found.insert(point, val);
-                    return None;
-                }
-                if let Some(x) = find_star(after, start, end) {
-                    let point = Point { x, y: i + 1 };
-                    if let Some(v) = found.get(&point) {
-                        return Some(*v * val);
-                    }
-                    found.insert(point, val);
-                    return None;
+                for (line, i) in [(line, i), (before, i - 1), (after, i + 1)].iter() {
+                    if let Some(x) = find_star(line, start, end) {
+                        let point = Point { x, y: *i };
+                        if let Some(v) = found.get(&point) {
+                            return Some(*v * val);
+                        }
+                        found.insert(point, val);
+                        return None;
+                    };
                 }
                 None
             })
