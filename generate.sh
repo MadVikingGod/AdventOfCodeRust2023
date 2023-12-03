@@ -10,7 +10,7 @@ touch ${bin} ${input}
 if [ ! -s ${bin} ]; then
     cat >$bin <<EOF
 fn main() {
-    let input = include_str!("input/day_${day}.txt");
+    let _input = include_str!("input/day_${day}.txt");
     println!("Hello, world!");
 }
 
