@@ -22,21 +22,25 @@ fn part1(lines: &[&str]) -> i32 {
 
 fn part2(lines: &[&str]) -> i32 {
     let mut counts = vec![1; lines.len()];
-    for (i, line) in lines.iter().enumerate() {
-        let find = count_matches(line) as usize;
-        for j in i + 1..i + 1 + find {
-            counts[j] += counts[i];
-        }
-    }
+    lines
+        .iter()
+        .enumerate()
+        .map(|(i, line)| (i, count_matches(line) as usize))
+        .for_each(|(i, matches)| {
+            for j in i + 1..i + 1 + matches {
+                counts[j] += counts[i];
+            }
+        });
     counts.iter().sum()
 }
 
 fn count_matches(card: &str) -> u32 {
     let card = card[card.find(':').unwrap()..].trim();
-    let (found, nums) = card.split_once('|').unwrap();
-    let found: HashSet<&str> = found.split_whitespace().collect();
-    let nums: Vec<&str> = nums.split_whitespace().collect();
-    return nums.iter().filter(|&num| found.contains(num)).count() as u32;
+    let (winning_numbers, nums) = card.split_once('|').unwrap();
+    let winning_numbers: HashSet<&str> = winning_numbers.split_whitespace().collect();
+    nums.split_whitespace()
+        .filter(|&num| winning_numbers.contains(num))
+        .count() as u32
 }
 
 fn score_card(card: &str) -> i32 {
@@ -55,6 +59,17 @@ Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
 Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
 Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
+
+#[test]
+fn test_count_matches() {
+    let matches: Vec<u32> = TEST_INPUT.lines().map(|line| count_matches(line)).collect();
+    assert_eq!(matches, vec![4, 2, 2, 1, 0, 0])
+}
+#[test]
+fn test_score_card() {
+    let scores: Vec<i32> = TEST_INPUT.lines().map(|line| score_card(line)).collect();
+    assert_eq!(scores, vec![8, 2, 2, 1, 0, 0])
+}
 
 #[test]
 fn test_par2() {
