@@ -1,15 +1,18 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, time::Instant};
 
 fn main() {
     let _input = include_str!("input/day_04.txt");
-    println!(
-        "Result: {}",
-        part1(&_input.split('\n').collect::<Vec<&str>>())
-    );
-    println!(
-        "Result: {}",
-        part2(&_input.split('\n').collect::<Vec<&str>>())
-    );
+    
+    let start = Instant::now();
+    let p1 = part1(&_input.split('\n').collect::<Vec<&str>>());
+    let duration = start.elapsed();
+    println!("Result: {}\t\t {:?}", p1, duration);
+
+    let start = Instant::now();
+    let p2 = part2(&_input.split('\n').collect::<Vec<&str>>());
+    let duration = start.elapsed();
+    println!("Result: {}\t\t {:?}", p2, duration);
+    
 }
 
 fn part1(lines: &[&str]) -> i32 {
