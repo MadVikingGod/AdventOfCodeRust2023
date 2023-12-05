@@ -22,18 +22,13 @@ fn part2(input: &str) -> usize {
         .collect::<Vec<_>>();
 
     (0..)
-        .map(|loc| {
-            (
-                loc,
-                maps.iter()
-                    .rev()
-                    .fold(loc, |current, map| map.prev_location(current)),
-            )
+        .find(|&loc| {
+            let seed = maps
+                .iter()
+                .rev()
+                .fold(loc, |current, map| map.prev_location(current));
+            seeds.find(&seed)
         })
-        .filter(|(_, seed)| seeds.find(seed))
-        .map(|(loc, _)| loc)
-        .take(1)
-        .next()
         .unwrap()
 }
 
