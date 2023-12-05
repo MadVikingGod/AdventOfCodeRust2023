@@ -18,7 +18,7 @@ fn part2(input: &str) -> usize {
     let seeds: SeedMap = groups.next().unwrap().into();
 
     let maps: Vec<Map> = groups
-        .map(|group| group.split('\n').skip(1).collect::<Vec<_>>().into())
+        .map(|group| group.split('\n').skip(1).collect())
         .collect::<Vec<_>>();
 
     (0..)
@@ -78,7 +78,7 @@ fn part1(input: &str) -> usize {
         .collect();
 
     let maps: Vec<Map> = groups
-        .map(|group| group.split('\n').skip(1).collect::<Vec<_>>().into())
+        .map(|group| group.split('\n').skip(1).collect())
         .collect::<Vec<_>>();
 
     let locs = seeds.iter().map(|seed| {
@@ -93,11 +93,11 @@ struct Map {
     rows: Vec<(usize, usize, usize)>,
 }
 
-impl From<Vec<&str>> for Map {
-    fn from(s: Vec<&str>) -> Map {
+impl<'a> FromIterator<&'a str> for Map {
+    fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
         Map {
-            rows: s
-                .iter()
+            rows: iter
+                .into_iter()
                 .map(|line| line.split_whitespace())
                 .map(|mut nums| {
                     (
@@ -138,14 +138,14 @@ fn test_new_map() {
     let want = Map {
         rows: vec![(50, 98, 2), (52, 50, 48)],
     };
-    assert_eq!(Map::from(input.split("\n").collect::<Vec<_>>()), want)
+    assert_eq!(Map::from_iter(input.split("\n")), want)
 }
 
 #[test]
 fn test_next_location() {
     let input = "50 98 2
     52 50 48";
-    let m = Map::from(input.split("\n").collect::<Vec<_>>());
+    let m: Map = input.split("\n").collect();
     assert_eq!(m.next_location(0), 0);
     assert_eq!(m.next_location(49), 49);
     assert_eq!(m.next_location(50), 52);
