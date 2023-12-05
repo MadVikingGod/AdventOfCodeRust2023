@@ -2,7 +2,7 @@ use std::{collections::HashSet, time::Instant};
 
 fn main() {
     let _input = include_str!("input/day_04.txt");
-    
+
     let start = Instant::now();
     let p1 = part1(&_input.split('\n').collect::<Vec<&str>>());
     let duration = start.elapsed();
@@ -12,7 +12,6 @@ fn main() {
     let p2 = part2(&_input.split('\n').collect::<Vec<&str>>());
     let duration = start.elapsed();
     println!("Result: {}\t\t {:?}", p2, duration);
-    
 }
 
 fn part1(lines: &[&str]) -> i32 {

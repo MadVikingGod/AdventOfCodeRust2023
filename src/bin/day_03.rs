@@ -43,7 +43,7 @@ fn part1(lines: &[&str]) -> i32 {
 
 fn part2(lines: &[&str]) -> i32 {
     let re = Regex::new(r"\d+").unwrap();
-    let mut found: HashMap<Point, i32> = HashMap::new();
+    let mut found: HashMap<Point<_>, i32> = HashMap::new();
     let lines = [""]
         .iter()
         .chain(lines.iter())
