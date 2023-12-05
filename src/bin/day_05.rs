@@ -1,40 +1,69 @@
+use std::time::Instant;
+
 use itertools::Itertools;
 
 fn main() {
     let _input = include_str!("input/day_05.txt");
 
     println!("Part 1: {}", part1(_input));
-    println!("Part 2: {}", part2(_input));
+    let start = Instant::now();
+    let p2 = part2(_input);
+    let duration = start.elapsed();
+    println!("Result: {}\t\t {:?}", p2, duration);
 }
 
 fn part2(input: &str) -> usize {
     let mut groups = input.split("\n\n");
     // Do seeds
-    let seeds = groups
-        .next()
-        .unwrap()
-        .split_whitespace()
-        .skip(1)
-        .map(|s| s.parse().unwrap())
-        .tuples()
-        .collect::<Vec<(usize, usize)>>();
+    let seeds: SeedMap = groups.next().unwrap().into();
 
     let maps: Vec<Map> = groups
         .map(|group| group.split('\n').skip(1).collect::<Vec<_>>().into())
         .collect::<Vec<_>>();
 
-    let mut min = std::usize::MAX;
-    for (start, len) in seeds {
-        for seed in start..start + len {
-            let loc = maps
-                .iter()
-                .fold(seed, |current, map| map.next_location(current));
-            if loc < min {
-                min = loc;
+    (0..)
+        .map(|loc| {
+            (
+                loc,
+                maps.iter()
+                    .rev()
+                    .fold(loc, |current, map| map.prev_location(current)),
+            )
+        })
+        .filter(|(_, seed)| seeds.find(seed))
+        .map(|(loc, _)| loc)
+        .take(1)
+        .next()
+        .unwrap()
+}
+
+#[derive(Debug, PartialEq)]
+struct SeedMap {
+    parts: Vec<(usize, usize)>,
+}
+
+impl SeedMap {
+    fn find(&self, seed: &usize) -> bool {
+        for (start, len) in self.parts.iter() {
+            if seed >= start && seed < &(start + len) {
+                return true;
             }
         }
+        false
     }
-    min
+}
+
+impl From<&str> for SeedMap {
+    fn from(s: &str) -> SeedMap {
+        SeedMap {
+            parts: s
+                .split_whitespace()
+                .skip(1)
+                .tuples()
+                .map(|(l, r)| (l.parse().unwrap(), r.parse().unwrap()))
+                .collect(),
+        }
+    }
 }
 
 fn part1(input: &str) -> usize {
@@ -87,6 +116,14 @@ impl Map {
         for row in self.rows.iter() {
             if row.1 <= current && current < row.1 + row.2 {
                 return row.0 + current - row.1;
+            }
+        }
+        current
+    }
+    fn prev_location(&self, current: usize) -> usize {
+        for row in self.rows.iter() {
+            if row.0 <= current && current < row.0 + row.2 {
+                return row.1 + current - row.0;
             }
         }
         current
@@ -156,4 +193,13 @@ humidity-to-location map:
 
     assert_eq!(part1(input), 35);
     assert_eq!(part2(input), 46);
+}
+
+#[test]
+fn test_seed_map() {
+    let input = "seeds: 79 14 55 13";
+    let want = SeedMap {
+        parts: vec![(79, 14), (55, 13)],
+    };
+    assert_eq!(SeedMap::from(input), want);
 }
