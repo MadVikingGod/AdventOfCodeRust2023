@@ -17,12 +17,21 @@ fn main() {
 
 fn part1(input: &str) -> usize {
     let mut lines = input.lines();
-    let mut instructions = lines.next().unwrap().chars().cycle();
+    let instructions = lines.next().unwrap();
     let map = lines.skip(1).collect::<Map>();
 
+    find_steps(&map, instructions, "AAA", |n| n == "ZZZ")
+}
+
+fn find_steps<P>(map: &Map, instructions: &str, start: &str, end: P) -> usize
+where
+    P: Fn(&str) -> bool,
+{
+    let mut instructions = instructions.chars().cycle();
     let mut count = 0;
-    let mut next = "AAA";
-    while next != "ZZZ" {
+    let mut next = start;
+
+    while !end(next) {
         next = match instructions.next().unwrap() {
             'L' => map.left(next),
             'R' => map.right(next),
@@ -32,55 +41,27 @@ fn part1(input: &str) -> usize {
     }
     count
 }
+
 fn part2(input: &str) -> usize {
     let mut lines = input.lines();
-    // let mut instructions = lines.next().unwrap().chars().cycle();
     let instructions = lines.next().unwrap();
     let map = lines.skip(1).collect::<Map>();
-    let loops = map
+
+    let start: Vec<&str> = map
         .nodes
         .keys()
         .filter(|&n| n.chars().nth(2).unwrap() == 'A')
         .cloned()
-        .map(|start| find_loop(instructions, &map, start))
-        .collect::<Vec<_>>();
-
-    println!("{:?}", loops);
-
-    // find all stopping points
-    // find the LCM of all stopping points
-
-    // let mut count = 0;
-    // let mut next: Vec<&str> = map.nodes.keys().filter(|&n| n.chars().nth(2).unwrap() == 'A').cloned().collect();
-    // while !next.iter().all(|n| n.chars().nth(2).unwrap() == 'Z') {
-    //     next = match instructions.next().unwrap() {
-    //         'L' => next.iter().map(|n| map.left(n)).collect(),
-    //         'R' => next.iter().map(|n| map.right(n)).collect(),
-    //         _ => unreachable!(),
-    //     };
-    //     count += 1;
-    // };
-    // count
-    0
-}
-
-fn find_loop(instructsion: &str, map: &Map, start: &str) -> (usize, usize) {
-    let instructions = instructsion.chars().enumerate().cycle();
-    let mut seen: HashMap<(usize, char, &str), usize> = HashMap::new();
-    let mut next = start;
-    for (count, (i, c)) in instructions.enumerate() {
-        if let Some(seen_count) = seen.get(&(i, c, next)) {
-            return (*seen_count, count - seen_count);
-        }
-        seen.insert((i, c, next), count);
-
-        next = match c {
-            'L' => map.left(next),
-            'R' => map.right(next),
-            _ => unreachable!(),
-        };
-    }
-    unreachable!()
+        .collect();
+    start
+        .iter()
+        .map(|&strat| {
+            find_steps(&map, instructions, strat, |n| {
+                n.chars().nth(2).unwrap() == 'Z'
+            })
+        })
+        .reduce(num::integer::lcm)
+        .unwrap()
 }
 
 struct Map<'a> {
@@ -150,6 +131,6 @@ fn test_part2() {
 22Z = (22B, 22B)
 XXX = (XXX, XXX)";
 
-    part2(input);
-    // assert_eq!(part2(input), 6);
+    // part2(input);
+    assert_eq!(part2(input), 6);
 }
