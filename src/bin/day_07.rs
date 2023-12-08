@@ -49,7 +49,7 @@ fn part2(input: &str) -> u64 {
         .sum()
 }
 
-#[derive(Debug, PartialEq, Eq, Ord)]
+#[derive(Debug, PartialEq, Eq)]
 struct Hand {
     cards: Vec<u8>,
     hand_kind: HandKind,
@@ -178,16 +178,22 @@ impl Hand {
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         for (a, b) in self.cards.iter().zip(other.cards.iter()) {
             if self.hand_kind != other.hand_kind {
-                return self.hand_kind.partial_cmp(&other.hand_kind);
+                return self.hand_kind.cmp(&other.hand_kind);
             } else if a > b {
-                return Some(std::cmp::Ordering::Greater);
+                return std::cmp::Ordering::Greater;
             } else if a < b {
-                return Some(std::cmp::Ordering::Less);
+                return std::cmp::Ordering::Less;
             }
         }
-        Some(std::cmp::Ordering::Equal)
+        std::cmp::Ordering::Equal
     }
 }
 
