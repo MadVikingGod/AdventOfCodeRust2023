@@ -31,9 +31,9 @@ fn part1(input: &str) -> i64 {
                 current = derivative(&current);
             }
 
-            ders.iter().rev().fold(0, |acc, current| {
-                acc + current.last().unwrap()
-            })
+            ders.iter()
+                .rev()
+                .fold(0, |acc, current| acc + current.last().unwrap())
         })
         .sum()
 }
@@ -54,9 +54,9 @@ fn part2(input: &str) -> i64 {
                 current = derivative(&current);
             }
 
-            ders.iter().rev().fold(0, |acc, current| {
-                current.first().unwrap() - acc
-            })
+            ders.iter()
+                .rev()
+                .fold(0, |acc, current| current.first().unwrap() - acc)
         })
         .sum()
 }
