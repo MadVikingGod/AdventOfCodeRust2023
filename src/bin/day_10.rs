@@ -1,4 +1,4 @@
-use aoc::Point;
+use aoc::{Map, Point};
 use std::{collections::HashMap, time::Instant};
 
 fn main() {
@@ -7,11 +7,16 @@ fn main() {
     let p1 = part1(input);
     let duration = start.elapsed();
     println!("Result: {}\t\t {:?}", p1, duration);
+
+    let start = Instant::now();
+    let p2 = part2(input);
+    let duration = start.elapsed();
+    println!("Result: {}\t\t {:?}", p2, duration);
 }
 
 fn part1(input: &str) -> usize {
-    let mut map: Map = input.lines().collect();
-    let (start, kind) = map.find_and_replace_start();
+    let mut map: Map<Pipe> = input.lines().collect();
+    let (start, kind) = find_and_replace_start(&mut map);
 
     let mut prev = match kind {
         Pipe::Vertical => (start + NORTH, start + SOUTH),
@@ -27,7 +32,10 @@ fn part1(input: &str) -> usize {
     let mut count = 0;
     let mut seen: HashMap<Point<i32>, usize> = HashMap::new();
     loop {
-        let next = (map.next(&prev.0, &current.0), map.next(&prev.1, &current.1));
+        let next = (
+            next(&map, &prev.0, &current.0),
+            next(&map, &prev.1, &current.1),
+        );
         if seen.contains_key(&next.0) || seen.contains_key(&next.1) {
             break;
         }
@@ -40,79 +48,117 @@ fn part1(input: &str) -> usize {
     count
 }
 
-struct Map {
-    pipes: HashMap<Point<i32>, Pipe>,
+fn part2(input: &str) -> usize {
+    let mut map: Map<Pipe> = input.lines().collect();
+    let (start, kind) = find_and_replace_start(&mut map);
+
+    let map = get_loop(&map, start, kind);
+    println!("{}", map);
+
+    0
 }
 
-impl<'a> FromIterator<&'a str> for Map {
-    fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
-        let mut pipes = HashMap::new();
-        for (y, line) in iter.into_iter().enumerate() {
-            for (x, c) in line.chars().enumerate() {
-                let point = Point {
-                    x: x as i32,
-                    y: y as i32,
-                };
-                if let Ok(pipe) = Pipe::try_from(c) {
-                    pipes.insert(point, pipe);
-                }
-            }
-        }
-        Map { pipes }
+// struct Map {
+//     pipes: HashMap<Point<i32>, Pipe>,
+// }
+
+// impl<'a> FromIterator<&'a str> for Map {
+//     fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
+//         let mut pipes = HashMap::new();
+//         for (y, line) in iter.into_iter().enumerate() {
+//             for (x, c) in line.chars().enumerate() {
+//                 let point = Point {
+//                     x: x as i32,
+//                     y: y as i32,
+//                 };
+//                 if let Ok(pipe) = Pipe::try_from(c) {
+//                     pipes.insert(point, pipe);
+//                 }
+//             }
+//         }
+//         Map { pipes }
+//     }
+// }
+
+fn find_start(map: &Map<Pipe>) -> Point<i32> {
+    *map.iter()
+        .find(|(_, pipe)| **pipe == Pipe::Start)
+        .unwrap()
+        .0
+}
+
+// TODO: fill out other directions
+fn find_start_kind(map: &Map<Pipe>, p: Point<i32>) -> Pipe {
+    let north = map.get(&(p + NORTH));
+    let south = map.get(&(p + SOUTH));
+    let east = map.get(&(p + EAST));
+    let west = map.get(&(p + WEST));
+
+    match (north, south, east, west) {
+        (_, Some(Pipe::Vertical), Some(Pipe::Horizontal), _) => Pipe::SouthEast,
+        (_, Some(Pipe::Vertical), Some(Pipe::NorthWest), _) => Pipe::SouthEast,
+        (Some(Pipe::SouthEast), Some(Pipe::NorthEast), _, _) => Pipe::Vertical,
+        _ => unimplemented!(),
     }
 }
 
-impl Map {
-    fn find_start(&self) -> Point<i32> {
-        *self
-            .pipes
-            .iter()
-            .find(|(_, pipe)| **pipe == Pipe::Start)
-            .unwrap()
-            .0
+fn find_and_replace_start(map: &mut Map<Pipe>) -> (Point<i32>, Pipe) {
+    let start = find_start(map);
+    let kind = find_start_kind(map, start);
+    map.points.entry(start).and_modify(|p| *p = kind);
+    (start, kind)
+}
+
+fn next(map: &Map<Pipe>, prev: &Point<i32>, current: &Point<i32>) -> Point<i32> {
+    let pipe = map.get(current).unwrap();
+    let direction = *current - *prev;
+    match (pipe, direction) {
+        (Pipe::Vertical, NORTH) => *current + NORTH,
+        (Pipe::Vertical, SOUTH) => *current + SOUTH,
+        (Pipe::Horizontal, EAST) => *current + EAST,
+        (Pipe::Horizontal, WEST) => *current + WEST,
+        (Pipe::NorthEast, SOUTH) => *current + EAST,
+        (Pipe::NorthEast, WEST) => *current + NORTH,
+        (Pipe::NorthWest, SOUTH) => *current + WEST,
+        (Pipe::NorthWest, EAST) => *current + NORTH,
+        (Pipe::SouthEast, NORTH) => *current + EAST,
+        (Pipe::SouthEast, WEST) => *current + SOUTH,
+        (Pipe::SouthWest, NORTH) => *current + WEST,
+        (Pipe::SouthWest, EAST) => *current + SOUTH,
+        _ => unimplemented!(),
     }
+}
 
-    // TODO: fill out other directions
-    fn find_start_kind(&self, p: Point<i32>) -> Pipe {
-        let north = self.pipes.get(&(p + NORTH));
-        let south = self.pipes.get(&(p + SOUTH));
-        let east = self.pipes.get(&(p + EAST));
-        let west = self.pipes.get(&(p + WEST));
+fn get_loop(map: &Map<Pipe>, start: Point<i32>, kind: Pipe) -> Map<Pipe> {
+    let mut prev = match kind {
+        Pipe::Vertical => (start + NORTH, start + SOUTH),
+        Pipe::Horizontal => (start + EAST, start + WEST),
+        Pipe::NorthEast => (start + NORTH, start + EAST),
+        Pipe::NorthWest => (start + NORTH, start + WEST),
+        Pipe::SouthEast => (start + SOUTH, start + EAST),
+        Pipe::SouthWest => (start + SOUTH, start + WEST),
+        _ => unimplemented!(),
+    };
+    let mut current = (start, start);
 
-        match (north, south, east, west) {
-            (_, Some(Pipe::Vertical), Some(Pipe::Horizontal), _) => Pipe::SouthEast,
-            (_, Some(Pipe::Vertical), Some(Pipe::NorthWest), _) => Pipe::SouthEast,
-            (Some(Pipe::SouthEast), Some(Pipe::NorthEast), _, _) => Pipe::Vertical,
-            _ => unimplemented!(),
+    let mut pipes: HashMap<Point<i32>, Pipe> = HashMap::new();
+    loop {
+        pipes.insert(current.0, *map.get(&current.0).unwrap());
+        pipes.insert(current.1, *map.get(&current.1).unwrap());
+
+        let next = (
+            next(map, &prev.0, &current.0),
+            next(map, &prev.1, &current.1),
+        );
+        if pipes.contains_key(&next.0) || pipes.contains_key(&next.1) {
+            pipes.insert(next.0, *map.get(&next.0).unwrap());
+            pipes.insert(next.1, *map.get(&next.1).unwrap());
+            break;
         }
+        prev = current;
+        current = next;
     }
-
-    fn find_and_replace_start(&mut self) -> (Point<i32>, Pipe) {
-        let start = self.find_start();
-        let kind = self.find_start_kind(start);
-        self.pipes.entry(start).and_modify(|p| *p = kind.clone());
-        (start, kind)
-    }
-
-    fn next(&self, prev: &Point<i32>, current: &Point<i32>) -> Point<i32> {
-        let pipe = self.pipes.get(current).unwrap();
-        let direction = *current - *prev;
-        match (pipe, direction) {
-            (Pipe::Vertical, NORTH) => *current + NORTH,
-            (Pipe::Vertical, SOUTH) => *current + SOUTH,
-            (Pipe::Horizontal, EAST) => *current + EAST,
-            (Pipe::Horizontal, WEST) => *current + WEST,
-            (Pipe::NorthEast, SOUTH) => *current + EAST,
-            (Pipe::NorthEast, WEST) => *current + NORTH,
-            (Pipe::NorthWest, SOUTH) => *current + WEST,
-            (Pipe::NorthWest, EAST) => *current + NORTH,
-            (Pipe::SouthEast, NORTH) => *current + EAST,
-            (Pipe::SouthEast, WEST) => *current + SOUTH,
-            (Pipe::SouthWest, NORTH) => *current + WEST,
-            (Pipe::SouthWest, EAST) => *current + SOUTH,
-            _ => unimplemented!(),
-        }
-    }
+    Map { points: pipes }
 }
 
 const NORTH: Point<i32> = Point { x: 0, y: -1 };
@@ -120,7 +166,7 @@ const SOUTH: Point<i32> = Point { x: 0, y: 1 };
 const EAST: Point<i32> = Point { x: 1, y: 0 };
 const WEST: Point<i32> = Point { x: -1, y: 0 };
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Pipe {
     Vertical,
     Horizontal,
@@ -143,6 +189,20 @@ impl TryFrom<char> for Pipe {
             'F' => Ok(Pipe::SouthEast),
             'S' => Ok(Pipe::Start),
             _ => Err(()),
+        }
+    }
+}
+
+impl From<Pipe> for char {
+    fn from(p: Pipe) -> char {
+        match p {
+            Pipe::Vertical => '|',
+            Pipe::Horizontal => '-',
+            Pipe::NorthEast => 'L',
+            Pipe::NorthWest => 'J',
+            Pipe::SouthWest => '7',
+            Pipe::SouthEast => 'F',
+            Pipe::Start => 'S',
         }
     }
 }
@@ -171,4 +231,18 @@ SJ.L7
 |F--J
 LJ...";
     assert_eq!(part1(input), 8);
+}
+
+#[test]
+fn test_part2() {
+    let input = "...........
+.S-------7.
+.|F-----7|.
+.||.....||.
+.||.....||.
+.|L-7.F-J|.
+.|..|.|..|.
+.L--J.L--J.
+...........";
+    assert_eq!(part2(input), 4);
 }
