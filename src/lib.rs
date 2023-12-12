@@ -26,23 +26,9 @@ impl<T> From<(T, T)> for Point<T> {
 }
 
 impl<T: Add<Output = T>> Add for Point<T> {
-    type Output = Point<T>;
+    type Output = Self;
 
-    fn add(self, other: Point<T>) -> Point<T> {
-        Point {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl<T> Add for &Point<T>
-where
-    T: Add<Output = T> + Copy,
-{
-    type Output = Point<T>;
-
-    fn add(self, other: &Point<T>) -> Point<T> {
+    fn add(self, other: Self) -> Self::Output {
         Point {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -51,9 +37,9 @@ where
 }
 
 impl<T: Sub<Output = T>> Sub for Point<T> {
-    type Output = Point<T>;
+    type Output = Self;
 
-    fn sub(self, other: Point<T>) -> Point<T> {
+    fn sub(self, other: Self) -> Self::Output {
         Point {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -73,6 +59,7 @@ where
         }
     }
 }
+
 
 #[cfg(test)]
 #[test]

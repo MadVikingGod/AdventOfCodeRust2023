@@ -161,6 +161,16 @@ fn get_loop(map: &Map<Pipe>, start: Point<i32>, kind: Pipe) -> Map<Pipe> {
     Map { points: pipes }
 }
 
+fn next_directed(current: DirectedPipe, next: Pipe) -> DirectedPipe {
+    match (current, next) {
+        (DirectedPipe::Right(Pipe::SouthEast), Pipe::Horizontal) => DirectedPipe::Right(Pipe::Horizontal),
+        (DirectedPipe::Right(Pipe::SouthEast), Pipe::NorthWest) => DirectedPipe::Right(Pipe::NorthWest),
+        (DirectedPipe::Right(Pipe::SouthEast), Pipe::SouthWest) => DirectedPipe::Right(Pipe::SouthWest),
+
+        _ => unimplemented!(),
+    }
+}
+
 const NORTH: Point<i32> = Point { x: 0, y: -1 };
 const SOUTH: Point<i32> = Point { x: 0, y: 1 };
 const EAST: Point<i32> = Point { x: 1, y: 0 };
@@ -175,6 +185,11 @@ enum Pipe {
     SouthEast,
     SouthWest,
     Start,
+}
+
+enum DirectedPipe {
+    Left(Pipe),
+    Right(Pipe),
 }
 
 impl TryFrom<char> for Pipe {
