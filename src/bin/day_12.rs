@@ -1,7 +1,5 @@
 use std::time::Instant;
 
-use regex::Regex;
-
 fn main() {
     let input = include_str!("input/day_12.txt");
     println!("Hello, world!");
@@ -23,20 +21,31 @@ fn expand(input: &str) -> Vec<String> {
     for c in input.chars() {
         if c == '?' {
             for line in current.iter() {
-                next.push(line.replacen('?',".", 1));
+                next.push(line.replacen('?', ".", 1));
                 next.push(line.replacen('?', "#", 1));
             }
-            (current, next) = (next,current);
-        next.clear();
-        } 
-    };
+            (current, next) = (next, current);
+            next.clear();
+        }
+    }
     current
 }
 
 fn check(input: &str) -> bool {
     let mut parts = input.split_whitespace();
-    let counts  = parts.next().unwrap().split(".").filter(|&part| part!="").map(|part| part.len()).collect::<Vec<_>>();
-    let vals = parts.next().unwrap().split(",").map(|n| n.parse::<usize>().unwrap()).collect::<Vec<_>>();
+    let counts = parts
+        .next()
+        .unwrap()
+        .split('.')
+        .filter(|&part| !part.is_empty())
+        .map(|part| part.len())
+        .collect::<Vec<_>>();
+    let vals = parts
+        .next()
+        .unwrap()
+        .split(',')
+        .map(|n| n.parse::<usize>().unwrap())
+        .collect::<Vec<_>>();
 
     counts == vals
 }
@@ -54,7 +63,7 @@ fn test_check() {
 ####.#...#... 4,1,1
 #....######..#####. 1,6,5
 .###.##....# 3,2,1";
-    
+
     for line in input.lines() {
         assert!(check(line))
     }
@@ -69,26 +78,24 @@ fn test_expand() {
     assert!(out.iter().all(|line| !line.contains("?")));
 }
 
-
 #[test]
 fn test_count() {
-
     let test_cases = vec![
-    ("???.### 1,1,3", 1),
-    (".??..??...?##. 1,1,3", 4),
-    ("?#?#?#?#?#?#?#? 1,3,1,6", 1),
-    ("????.#...#... 4,1,1", 1),
-    ("????.######..#####. 1,6,5", 4),
-    ("?###???????? 3,2,1", 10)];
+        ("???.### 1,1,3", 1),
+        (".??..??...?##. 1,1,3", 4),
+        ("?#?#?#?#?#?#?#? 1,3,1,6", 1),
+        ("????.#...#... 4,1,1", 1),
+        ("????.######..#####. 1,6,5", 4),
+        ("?###???????? 3,2,1", 10),
+    ];
 
     for (input, want) in test_cases {
         assert_eq!(count(input), want)
     }
-
 }
 #[test]
 fn test_part1() {
-    let input="???.### 1,1,3
+    let input = "???.### 1,1,3
 .??..??...?##. 1,1,3
 ?#?#?#?#?#?#?#? 1,3,1,6
 ????.#...#... 4,1,1
@@ -102,7 +109,7 @@ fn test_regex() {
     let input = "?###????????";
     let regx = Regex::new(r"[\?\.]+[\?#]{3}[\?\.]+[\?#]{2}[\?\.]+[\?#]{1}[\?\.]+").unwrap();
 
-    let count = regx.find_iter(input).count();
+    let _count = regx.find_iter(input).count();
     // assert_eq!(count, 10)
     //This doesn't work
 }

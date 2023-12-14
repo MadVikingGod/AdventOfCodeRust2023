@@ -2,6 +2,7 @@ use std::{collections::HashMap, fmt::Display};
 
 use crate::Point;
 
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Map<P> {
     pub points: HashMap<Point<i32>, P>,
 }
@@ -24,6 +25,14 @@ where
             }
         }
         Map::<P> { points }
+    }
+}
+
+impl<P> FromIterator<(Point<i32>, P)> for Map<P> {
+    fn from_iter<I: IntoIterator<Item = (Point<i32>, P)>>(iter: I) -> Self {
+        Self {
+            points: HashMap::from_iter(iter),
+        }
     }
 }
 

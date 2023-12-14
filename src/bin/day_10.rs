@@ -163,9 +163,15 @@ fn get_loop(map: &Map<Pipe>, start: Point<i32>, kind: Pipe) -> Map<Pipe> {
 
 fn next_directed(current: DirectedPipe, next: Pipe) -> DirectedPipe {
     match (current, next) {
-        (DirectedPipe::Right(Pipe::SouthEast), Pipe::Horizontal) => DirectedPipe::Right(Pipe::Horizontal),
-        (DirectedPipe::Right(Pipe::SouthEast), Pipe::NorthWest) => DirectedPipe::Right(Pipe::NorthWest),
-        (DirectedPipe::Right(Pipe::SouthEast), Pipe::SouthWest) => DirectedPipe::Right(Pipe::SouthWest),
+        (DirectedPipe::Right(Pipe::SouthEast), Pipe::Horizontal) => {
+            DirectedPipe::Right(Pipe::Horizontal)
+        }
+        (DirectedPipe::Right(Pipe::SouthEast), Pipe::NorthWest) => {
+            DirectedPipe::Right(Pipe::NorthWest)
+        }
+        (DirectedPipe::Right(Pipe::SouthEast), Pipe::SouthWest) => {
+            DirectedPipe::Right(Pipe::SouthWest)
+        }
 
         _ => unimplemented!(),
     }
