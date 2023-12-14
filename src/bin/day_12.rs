@@ -1,5 +1,7 @@
 use std::time::Instant;
 
+use regex::Regex;
+
 fn main() {
     let input = include_str!("input/day_12.txt");
     println!("Hello, world!");

@@ -57,9 +57,9 @@ impl TryFrom<char> for Rock {
     }
 }
 
-impl Into<char> for Rock {
-    fn into(self) -> char {
-        match self {
+impl From<Rock> for char {
+    fn from(val: Rock) -> Self {
+        match val {
             Rock::Round => 'O',
             Rock::Square => '#',
         }
