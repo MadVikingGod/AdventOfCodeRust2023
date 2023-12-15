@@ -19,6 +19,22 @@ where
     }
 }
 
+impl<T: Ord + Copy> Point<T> {
+    pub fn max(&self, other: &Self) -> Self {
+        Point {
+            x: self.x.max(other.x),
+            y: self.y.max(other.y),
+        }
+    }
+
+    pub fn min(&self, other: &Self) -> Self {
+        Point {
+            x: self.x.min(other.x),
+            y: self.y.min(other.y),
+        }
+    }
+}
+
 impl<T> From<(T, T)> for Point<T> {
     fn from((x, y): (T, T)) -> Point<T> {
         Point { x, y }
